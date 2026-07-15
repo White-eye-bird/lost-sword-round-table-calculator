@@ -39,7 +39,29 @@ button { touch-action:manipulation; }
   border-radius:12px 12px 0 0;
   border-bottom:3px solid var(--gold);
 }
-.hero h1 { margin:0 0 5px; font-size:clamp(1.5rem,4vw,1.95rem); letter-spacing:-.03em; }
+.hero h1 {
+  display:flex;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:8px 10px;
+  margin:0 0 5px;
+  font-size:clamp(1.5rem,4vw,1.95rem);
+  letter-spacing:-.03em;
+}
+.level-range-badge {
+  display:inline-flex;
+  align-items:center;
+  min-height:25px;
+  padding:3px 8px;
+  border:1px solid rgba(199,163,93,.75);
+  border-radius:999px;
+  background:rgba(255,255,255,.08);
+  color:#f3dfb4;
+  font-size:.72rem;
+  font-weight:800;
+  letter-spacing:0;
+  white-space:nowrap;
+}
 .hero p { margin:0; color:#d8deea; font-size:.88rem; }
 .tabs {
   display:grid;
@@ -77,6 +99,13 @@ button { touch-action:manipulation; }
   grid-template-columns:repeat(2,minmax(0,1fr));
   gap:18px;
   align-items:start;
+}
+/* PC에서는 결과 안내 영역이 입력 영역 높이만큼 이어지도록 합니다. */
+.workspace > section:last-child {
+  align-self:stretch;
+}
+.workspace > section:last-child > .placeholder {
+  height:100%;
 }
 .box {
   border:1px solid var(--line);
@@ -392,6 +421,8 @@ th:first-child,td:first-child { text-align:left; }
   .hero { padding:18px 16px; }
   .content { padding:8px; }
   .workspace { grid-template-columns:1fr; }
+  .workspace > section:last-child { align-self:auto; }
+  .workspace > section:last-child > .placeholder { height:auto; }
   .placeholder { min-height:190px; }
 }
 @media (max-width:520px) {
@@ -428,17 +459,17 @@ th:first-child,td:first-child { text-align:left; }
 <body>
 <div class="app">
   <header class="hero">
-    <h1>원탁 성장 계산기</h1>
-    <p>원탁 패스 단축 효과와 보유 재화 사용 시 도달 레벨을 계산합니다.</p>
+    <h1>원탁 성장 계산기 <span class="level-range-badge">200~300 레벨 전용</span></h1>
+    <p>보유 재화에 따른 성장 결과와 원탁 패스 효율을 계산합니다.</p>
   </header>
 
   <nav class="tabs" aria-label="계산기 선택">
-    <button class="tab" id="tabPass" type="button" aria-selected="true">패스 단축 일수</button>
-    <button class="tab" id="tabLevel" type="button" aria-selected="false">보유 재화 도달 레벨</button>
+    <button class="tab" id="tabLevel" type="button" aria-selected="true">재화 · 성장 계산</button>
+    <button class="tab" id="tabPass" type="button" aria-selected="false">원탁 패스 효율</button>
   </nav>
 
   <main class="content">
-    <section class="calc-panel" id="passPanel">
+    <section class="calc-panel" id="passPanel" hidden>
       <div class="workspace">
         <section class="box">
           <h2 class="box-title">입력</h2>
@@ -455,7 +486,7 @@ th:first-child,td:first-child { text-align:left; }
                 </div>
                 <div>
                   <label for="level">현재 원탁 레벨</label>
-                  <input id="level" inputmode="numeric" min="200" max="300" type="number" value="236">
+                  <input id="level" inputmode="numeric" min="200" max="300" type="number" placeholder="현재 원탁 레벨 입력">
                   <span class="hint" id="passAvailability"></span>
                 </div>
               </div>
@@ -464,11 +495,7 @@ th:first-child,td:first-child { text-align:left; }
             <div class="group">
               <div class="group-title">하루 경험치 수급 조건</div>
               <div>
-                <label for="explore">단기 탐색 1회 경험치 북 <span class="help-tip" tabindex="0" data-help="단기 탐색 1회(2시간)로 획득하는 경험치 북 수량입니다. 방치 24시간과 합산하여 일일 수급량을 계산합니다.">?</span></label>
-                <input id="explore" inputmode="numeric" min="0" step="1" type="number" placeholder="2시간분 수량 입력">
-              </div>
-              <div>
-                <label for="passShortExploreCount">하루 단기 탐색 횟수 (최대 5회) <span class="help-tip" tabindex="0" data-help="무료 탐색과 유료 탐색을 합친 하루 총 단기 탐색 횟수입니다.">?</span></label>
+                <label for="passShortExploreCount">하루 단기 탐색 실행 횟수 (최대 5회) <span class="help-tip" tabindex="0" data-help="무료 탐색과 유료 탐색을 합쳐 하루에 실제로 실행하는 단기 탐색 횟수입니다.">?</span></label>
                 <select id="passShortExploreCount">
                   <option value="1" selected>1회</option>
                   <option value="2">2회</option>
@@ -476,6 +503,10 @@ th:first-child,td:first-child { text-align:left; }
                   <option value="4">4회</option>
                   <option value="5">5회</option>
                 </select>
+              </div>
+              <div>
+                <label for="explore">단기 탐색 1회 획득 경험치 북 <span class="help-tip" tabindex="0" data-help="단기 탐색 1회(2시간)로 획득하는 경험치 북 수량입니다. 방치 24시간과 합산하여 일일 수급량을 계산합니다.">?</span></label>
+                <input id="explore" inputmode="numeric" min="0" step="1" type="number" placeholder="2시간분 수량 입력">
               </div>
               <div>
                 <label for="passDungeonStage">마지막 클리어 경험치 던전 <span class="help-tip" tabindex="0" data-help="현재 도달한 층이 아니라 바로 이전 단계를 선택합니다. 예: 현재 76층이면 75단계를 선택합니다.">?</span></label>
@@ -569,44 +600,40 @@ th:first-child,td:first-child { text-align:left; }
       </div>
     </section>
 
-    <section class="calc-panel" id="levelPanel" hidden>
+    <section class="calc-panel" id="levelPanel">
       <div class="workspace">
         <section class="box">
           <h2 class="box-title">입력</h2>
           <div class="box-body">
             <div class="group">
               <div class="group-title">현재 상태</div>
-              <div class="pair">
-                <div>
-                  <label for="currentLevel">현재 원탁 레벨</label>
-                  <input id="currentLevel" inputmode="numeric" min="200" max="300" type="number" value="250">
-                  <span class="hint" id="levelRangeNotice">계산 지원 범위: 현재 레벨 200~300</span>
-                </div>
-                <div>
-                  <label for="ownedBooks">보유 경험치 북</label>
-                  <input id="ownedBooks" inputmode="numeric" min="0" step="1" type="number" placeholder="현재 보유 수량">
-                </div>
+              <div>
+                <label for="currentLevel">현재 원탁 레벨</label>
+                <input id="currentLevel" inputmode="numeric" min="200" max="300" type="number" placeholder="현재 원탁 레벨 입력">
+                <span class="hint" id="levelRangeNotice">계산 지원 범위: 현재 레벨 200~300</span>
               </div>
             </div>
 
             <div class="group">
-              <div class="group-title">보유 재화</div>
+              <div class="group-title">인벤토리에서 확인</div>
+              <div>
+                <label for="ownedBooks">보유 경험치 북</label>
+                <input id="ownedBooks" inputmode="numeric" min="0" step="1" type="number" placeholder="미입력 시 0">
+              </div>
+              <div>
+                <label for="ownedBoxes">보유 경험치 상자 <span class="help-tip" tabindex="0" data-help="상자 1개는 단기 탐색 1시간분으로 계산합니다.">?</span></label>
+                <input id="ownedBoxes" inputmode="numeric" min="0" step="1" type="number" placeholder="미입력 시 0">
+              </div>
               <div>
                 <label for="ownedTickets">보유 경험치 던전 티켓(퍼플 티켓)</label>
-                <input id="ownedTickets" inputmode="numeric" min="0" step="1" type="number" value="0">
+                <input id="ownedTickets" inputmode="numeric" min="0" step="1" type="number" placeholder="미입력 시 0">
               </div>
+            </div>
+
+            <div class="group">
+              <div class="group-title">탐색에서 확인</div>
               <div>
-                <label for="levelDungeonStage">마지막 클리어 경험치 던전 <span class="help-tip" tabindex="0" data-help="현재 도달한 층이 아니라 바로 이전 단계를 선택합니다. 예: 현재 76층이면 75단계를 선택합니다.">?</span></label>
-                <select id="levelDungeonStage"></select>
-                <span class="hint">현재 층보다 1단계 낮은 단계를 선택하세요.</span>
-                <span class="hint" id="ticketValueHint"></span>
-              </div>
-              <div>
-                <label for="exploreReward">단기 탐색 1회 경험치 북 <span class="help-tip" tabindex="0" data-help="단기 탐색 1회(2시간)로 획득하는 경험치 북 수량입니다. 남은 기간 계산의 하루 수급량에도 사용합니다.">?</span></label>
-                <input id="exploreReward" inputmode="numeric" min="0" step="1" type="number" placeholder="2시간분 수량 입력">
-              </div>
-              <div>
-                <label for="levelShortExploreCount">하루 단기 탐색 횟수 (최대 5회) <span class="help-tip" tabindex="0" data-help="무료 탐색과 유료 탐색을 합친 하루 총 단기 탐색 횟수입니다.">?</span></label>
+                <label for="levelShortExploreCount">하루 단기 탐색 실행 횟수 (최대 5회) <span class="help-tip" tabindex="0" data-help="무료 탐색과 유료 탐색을 합쳐 하루에 실제로 실행하는 단기 탐색 횟수입니다.">?</span></label>
                 <select id="levelShortExploreCount">
                   <option value="1" selected>1회</option>
                   <option value="2">2회</option>
@@ -616,8 +643,18 @@ th:first-child,td:first-child { text-align:left; }
                 </select>
               </div>
               <div>
-                <label for="ownedBoxes">보유 경험치 상자 <span class="help-tip" tabindex="0" data-help="상자 1개는 단기 탐색 1시간분으로 계산합니다.">?</span></label>
-                <input id="ownedBoxes" inputmode="numeric" min="0" step="1" type="number" value="0">
+                <label for="exploreReward">단기 탐색 1회 획득 경험치 북 <span class="help-tip" tabindex="0" data-help="단기 탐색 1회(2시간)로 획득하는 경험치 북 수량입니다. 경험치 상자 환산과 남은 기간 계산의 하루 수급량에 사용합니다.">?</span></label>
+                <input id="exploreReward" inputmode="numeric" min="0" step="1" type="number" placeholder="2시간분 수량 입력">
+              </div>
+            </div>
+
+            <div class="group">
+              <div class="group-title">경험치 던전에서 확인</div>
+              <div>
+                <label for="levelDungeonStage">마지막 클리어 경험치 던전 <span class="help-tip" tabindex="0" data-help="현재 도달한 층이 아니라 바로 이전 단계를 선택합니다. 예: 현재 76층이면 75단계를 선택합니다.">?</span></label>
+                <select id="levelDungeonStage"></select>
+                <span class="hint">현재 층보다 1단계 낮은 단계를 선택하세요.</span>
+                <span class="hint" id="ticketValueHint"></span>
               </div>
             </div>
 
@@ -659,7 +696,7 @@ th:first-child,td:first-child { text-align:left; }
               </div>
             </div>
 
-            <button class="action" id="calculateLevel" type="button">전부 사용했을 때 계산</button>
+            <button class="action" id="calculateLevel" type="button">계산하기</button>
             <div class="error" id="levelError"></div>
           </div>
         </section>
@@ -810,6 +847,18 @@ function readNonNegativeInteger(id, label) {
   return value;
 }
 
+// 보유 수량 입력은 비워 두면 0으로 계산합니다.
+function readOptionalNonNegativeInteger(id, label) {
+  const raw = $(id).value.trim();
+  if (raw === "") return 0;
+
+  const value = Number(raw);
+  if (!Number.isInteger(value) || value < 0) {
+    throw new Error(`${label}을 0 이상의 정수로 입력해 주세요.`);
+  }
+  return value;
+}
+
 function validateSupportedLevel(level) {
   if (level < SUPPORTED_LEVEL_MIN || level > SUPPORTED_LEVEL_MAX) {
     throw new Error(`현재 원탁 레벨은 ${SUPPORTED_LEVEL_MIN}~${SUPPORTED_LEVEL_MAX}만 사용할 수 있습니다.`);
@@ -835,8 +884,15 @@ function getDungeonReward(stage) {
 
 function checkPassAvailability(showAlert=false) {
   const pass = PASS_CONFIG[$("passType").value];
-  const level = Number($("level").value);
+  const raw = $("level").value.trim();
+  const level = Number(raw);
   const notice = $("passAvailability");
+
+  if (raw === "") {
+    notice.textContent = `${pass.name} 사용 범위: 현재 레벨 ${pass.min}~${pass.max}`;
+    notice.className = "hint";
+    return false;
+  }
 
   if (!Number.isInteger(level)) {
     notice.textContent = "현재 원탁 레벨을 정수로 입력해 주세요.";
@@ -867,8 +923,15 @@ function checkPassAvailability(showAlert=false) {
 }
 
 function checkLevelRange(showAlert=false) {
-  const level = Number($("currentLevel").value);
+  const raw = $("currentLevel").value.trim();
+  const level = Number(raw);
   const notice = $("levelRangeNotice");
+
+  if (raw === "") {
+    notice.textContent = `계산 지원 범위: 현재 레벨 ${SUPPORTED_LEVEL_MIN}~${SUPPORTED_LEVEL_MAX}`;
+    notice.className = "hint";
+    return false;
+  }
 
   if (!Number.isInteger(level)) {
     notice.textContent = "현재 원탁 레벨을 정수로 입력해 주세요.";
@@ -898,6 +961,10 @@ function updatePassDungeonHint() {
 
 function readPassInput() {
   const pass = PASS_CONFIG[$("passType").value];
+  const levelRaw = $("level").value.trim();
+  if (levelRaw === "") {
+    throw new Error("현재 원탁 레벨을 입력해 주세요.");
+  }
   const level = readInteger("level", "현재 원탁 레벨");
   validateSupportedLevel(level);
 
@@ -908,7 +975,7 @@ function readPassInput() {
   const exploreRaw = $("explore").value.trim();
   const explore = Number(exploreRaw);
   if (exploreRaw === "" || !Number.isFinite(explore) || explore < 0) {
-    throw new Error("단기 탐색 1회 경험치 북 수량을 입력해 주세요.");
+    throw new Error("단기 탐색 1회 획득 경험치 북 수량을 입력해 주세요.");
   }
 
   return {
@@ -933,7 +1000,7 @@ function sumRequiredExp(fromLevel, toLevelExclusive) {
 }
 
 // 방치 24시간은 단기 탐색 12회분으로 환산하고,
-// 사용자가 선택한 하루 단기 탐색 횟수(1~5회)를 더합니다.
+// 사용자가 선택한 하루 단기 탐색 실행 횟수(1~5회)를 더합니다.
 function calculateDailyExp(input) {
   const dungeonOne = getDungeonReward(input.stage);
   const shortExploreCount = Math.min(5, Math.max(1, Number(input.shortExploreCount) || 1));
@@ -1008,15 +1075,18 @@ function updateTicketHint() {
 }
 
 function readLevelInput() {
+  if ($("currentLevel").value.trim() === "") {
+    throw new Error("현재 원탁 레벨을 입력해 주세요.");
+  }
   const level = readInteger("currentLevel", "현재 원탁 레벨");
   validateSupportedLevel(level);
   return {
     level,
-    ownedBooks:readNonNegativeInteger("ownedBooks", "보유 경험치 북"),
-    ownedTickets:readNonNegativeInteger("ownedTickets", "보유 경험치 던전 티켓(퍼플 티켓)"),
-    exploreReward:readNonNegativeInteger("exploreReward", "단기 탐색 1회 경험치 북"),
+    ownedBooks:readOptionalNonNegativeInteger("ownedBooks", "보유 경험치 북"),
+    ownedTickets:readOptionalNonNegativeInteger("ownedTickets", "보유 경험치 던전 티켓(퍼플 티켓)"),
+    exploreReward:readNonNegativeInteger("exploreReward", "단기 탐색 1회 획득 경험치 북"),
     shortExploreCount:Number($("levelShortExploreCount").value),
-    ownedBoxes:readNonNegativeInteger("ownedBoxes", "보유 경험치 상자"),
+    ownedBoxes:readOptionalNonNegativeInteger("ownedBoxes", "보유 경험치 상자"),
     stage:Number($("levelDungeonStage").value),
     calculateRemainingPeriod:$("enableRemainingPeriod").checked,
     maze:$("levelMaze").value,
