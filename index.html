@@ -82,7 +82,7 @@ button { touch-action:manipulation; }
   border:1px solid var(--line);
   border-radius:10px;
   background:#fff;
-  overflow:hidden;
+  overflow:visible;
 }
 .box-title {
   margin:0;
@@ -146,7 +146,7 @@ input:focus,select:focus {
   margin-bottom:13px;
   border:1px solid var(--line);
   border-radius:8px;
-  overflow:hidden;
+  overflow:visible;
 }
 .options-title {
   padding:9px 12px;
@@ -233,10 +233,51 @@ input:focus,select:focus {
   color:var(--navy);
   font-size:1.8rem;
 }
+.period-headline {
+  padding:16px 18px;
+}
+.period-title {
+  display:block;
+  color:#303949;
+  font-size:.9rem;
+}
+.period-value-row {
+  display:flex;
+  align-items:baseline;
+  flex-wrap:wrap;
+  gap:8px 12px;
+  margin-top:5px;
+}
+.period-value-row strong {
+  margin-top:0;
+}
+.period-months {
+  display:inline-flex;
+  align-items:center;
+  min-height:28px;
+  padding:4px 9px;
+  border:1px solid #dfd3b9;
+  border-radius:999px;
+  background:#fff;
+  color:#4a566b;
+  font-size:.82rem;
+  font-weight:750;
+}
+.period-note {
+  margin:-4px 0 14px;
+  padding:0 4px;
+  color:var(--muted);
+  font-size:.77rem;
+  line-height:1.55;
+}
 .cards {
   display:grid;
   grid-template-columns:repeat(2,minmax(0,1fr));
   gap:9px;
+}
+/* 결과 카드가 홀수 개면 마지막 카드는 두 칸을 모두 사용합니다. */
+.cards > .card:last-child:nth-child(odd) {
+  grid-column:1 / -1;
 }
 .card {
   min-height:74px;
@@ -268,6 +309,81 @@ table { width:100%; border-collapse:collapse; font-size:.81rem; }
 th,td { padding:9px 11px; border-bottom:1px solid var(--line); text-align:right; }
 th:first-child,td:first-child { text-align:left; }
 
+.help-tip {
+  position:relative;
+  display:inline-grid;
+  place-items:center;
+  width:18px;
+  height:18px;
+  margin-left:5px;
+  border:1px solid #9da7b5;
+  border-radius:50%;
+  background:#fff;
+  color:#596579;
+  font-size:.72rem;
+  font-weight:900;
+  line-height:1;
+  cursor:help;
+  vertical-align:middle;
+  flex:0 0 auto;
+}
+.help-tip::after {
+  content:attr(data-help);
+  position:absolute;
+  z-index:20;
+  left:50%;
+  bottom:calc(100% + 9px);
+  width:min(280px,72vw);
+  padding:9px 11px;
+  border:1px solid #cfd5de;
+  border-radius:7px;
+  background:#26334d;
+  color:#fff;
+  box-shadow:0 8px 20px rgba(27,39,62,.18);
+  font-size:.75rem;
+  font-weight:600;
+  line-height:1.45;
+  text-align:left;
+  white-space:normal;
+  transform:translate(-50%,4px);
+  opacity:0;
+  visibility:hidden;
+  pointer-events:none;
+  transition:opacity .15s ease,transform .15s ease;
+}
+.help-tip:hover::after,
+.help-tip:focus::after {
+  opacity:1;
+  visibility:visible;
+  transform:translate(-50%,0);
+}
+.check .help-tip { margin-left:auto; margin-top:1px; }
+
+/* 카드 제목 안의 도움말이 다음 줄로 내려가지 않도록 표시 방식만 바로잡음 */
+.card > span {
+  display:flex;
+  align-items:center;
+  gap:4px;
+}
+.card .help-tip {
+  display:inline-grid;
+  margin:0;
+}
+
+/* 오른쪽 끝에 있는 도움말은 말풍선이 화면 밖으로 나가지 않게 오른쪽 정렬 */
+.check .help-tip::after,
+.card .help-tip::after {
+  left:auto;
+  right:0;
+  transform:translateY(4px);
+}
+.check .help-tip:hover::after,
+.check .help-tip:focus::after,
+.card .help-tip:hover::after,
+.card .help-tip:focus::after {
+  transform:translateY(0);
+}
+
 @media (max-width:820px) {
   .app { padding:8px 5px 26px; }
   .hero { padding:18px 16px; }
@@ -276,6 +392,25 @@ th:first-child,td:first-child { text-align:left; }
   .placeholder { min-height:190px; }
 }
 @media (max-width:520px) {
+  /* 모바일에서는 도움말을 화면 하단에 띄워 좌우 잘림을 방지 */
+  .help-tip::after,
+  .check .help-tip::after,
+  .card .help-tip::after {
+    position:fixed;
+    left:12px;
+    right:12px;
+    bottom:12px;
+    width:auto;
+    transform:translateY(4px);
+  }
+  .help-tip:hover::after,
+  .help-tip:focus::after,
+  .check .help-tip:hover::after,
+  .check .help-tip:focus::after,
+  .card .help-tip:hover::after,
+  .card .help-tip:focus::after {
+    transform:translateY(0);
+  }
   .tab { min-height:54px; padding:7px 5px; font-size:.82rem; }
   .box-body { padding:14px; }
   .pair { grid-template-columns:1fr; }
@@ -323,34 +458,38 @@ th:first-child,td:first-child { text-align:left; }
             <div class="group">
               <div class="group-title">하루 경험치 수급 조건</div>
               <div>
-                <label for="explore">무료 탐색 1회 경험치 북</label>
+                <label for="explore">무료 탐색 1회 경험치 북 <span class="help-tip" tabindex="0" data-help="무료 보물 탐색 2시간으로 획득하는 경험치 북 수량입니다. 방치 24시간과 합산하여 일일 수급량을 계산합니다.">?</span></label>
                 <input id="explore" inputmode="numeric" min="0" step="1" type="number" placeholder="2시간분 수량 입력">
-                <span class="hint">방치 24시간과 무료 탐색 2시간을 합산해 13배로 계산합니다.</span>
               </div>
               <div>
-                <label for="passDungeonStage">마지막 클리어 경험치 던전</label>
+                <label for="passDungeonStage">마지막 클리어 경험치 던전 <span class="help-tip" tabindex="0" data-help="현재 도달한 층이 아니라 바로 이전 단계를 선택합니다. 예: 현재 76층이면 75단계를 선택합니다.">?</span></label>
                 <select id="passDungeonStage"></select>
+                <span class="hint">현재 층보다 1 낮은 단계를 선택하세요.</span>
                 <span class="hint" id="passDungeonHint"></span>
               </div>
               <div>
-                <label for="maze">주간 미궁</label>
+                <label for="maze">주간 미궁 <span class="help-tip" tabindex="0" data-help="헬 130,000 / 킹 65,000 경험치 북을 기준으로 계산합니다. 여러 실측값의 중간 기준값이며 실제 획득량은 달라질 수 있습니다.">?</span></label>
                 <select id="maze">
-                  <option value="hell">헬</option>
+                  <option value="none" selected>미포함</option>
                   <option value="king">킹</option>
-                  <option value="none">미포함</option>
+                  <option value="hell">헬</option>
                 </select>
+              </div>
+              <div class="check">
+                <input checked id="passEventDungeon" type="checkbox">
+                <label for="passEventDungeon">이벤트 던전 보상 포함</label><span class="help-tip" tabindex="0" data-help="2주마다 업데이트되는 이벤트 던전 보상 100,000개를 14일 평균으로 환산해 하루 수급량에 반영합니다.">?</span>
               </div>
             </div>
 
             <div class="options">
-              <div class="options-title">추가 수급 포함</div>
+              <div class="options-title">교환소 품목</div>
               <div class="check">
                 <input checked id="shopTicket" type="checkbox">
-                <label for="shopTicket">상점 경험치 던전 티켓을 매일 1장 구매</label>
+                <label for="shopTicket">교환소 경험치 던전 티켓(퍼플 티켓)을 매일 1장 교환</label><span class="help-tip" tabindex="0" data-help="체크하면 교환소에서 퍼플 티켓 1장을 매일 교환하는 것으로 하루 수급량에 반영합니다.">?</span>
               </div>
               <div class="check">
                 <input checked id="goldShopBooks" type="checkbox">
-                <label for="goldShopBooks">골드 상점 경험치 북 매일 구매 · 1,000개 / 100,000골드</label>
+                <label for="goldShopBooks">교환소 경험치 북 매일 교환 · 1,000개 / 100,000골드</label><span class="help-tip" tabindex="0" data-help="체크하면 교환소에서 경험치 북 1,000개를 매일 교환하는 것으로 하루 수급량에 반영합니다.">?</span>
               </div>
             </div>
 
@@ -374,12 +513,12 @@ th:first-child,td:first-child { text-align:left; }
                 <strong id="daysSaved">-</strong>
               </div>
               <div class="cards">
-                <div class="card"><span>티켓 사용 후</span><b id="levelResult">-</b></div>
-                <div class="card"><span>실제 사용 티켓</span><b id="ticketUse">-</b></div>
-                <div class="card"><span>남는 티켓</span><b id="ticketLeft">-</b></div>
+                <div class="card"><span>패스 적용 후 레벨</span><b id="levelResult">-</b></div>
+                <div class="card"><span>사용한 패스 티켓</span><b id="ticketUse">-</b></div>
+                <div class="card"><span>남는 패스 티켓</span><b id="ticketLeft">-</b></div>
                 <div class="card"><span>절약 경험치 북</span><b id="savedExp">-</b></div>
                 <div class="card"><span>하루 평균 수급</span><b id="dailyTotal">-</b></div>
-                <div class="card"><span>최대 효율 대비</span><b id="efficiency">-</b></div>
+                <div class="card"><span>패스 최대 효율 대비 <span class="help-tip" tabindex="0" data-help="현재 사용 시 절약되는 경험치를 해당 패스의 최대 절약 경험치와 비교한 비율입니다. 100%에 가까울수록 효율이 높습니다.">?</span></span><b id="efficiency">-</b></div>
               </div>
 
               <details>
@@ -389,10 +528,10 @@ th:first-child,td:first-child { text-align:left; }
                     <tbody>
                       <tr><td>방치 24시간 + 무료 탐색 2시간</td><td id="idleDaily">-</td></tr>
                       <tr><td>경험치 던전 무료 소탕 3회</td><td id="dungeonDaily">-</td></tr>
-                      <tr><td>상점 티켓 1회</td><td id="shopDaily">-</td></tr>
+                      <tr><td>교환소 퍼플 티켓 1회</td><td id="shopDaily">-</td></tr>
                       <tr><td>미궁 일일 환산</td><td id="mazeDaily">-</td></tr>
-                      <tr><td>이벤트 일일 환산</td><td id="eventDaily">-</td></tr>
-                      <tr><td>골드 상점 경험치 북</td><td id="goldShopDaily">-</td></tr>
+                      <tr><td>이벤트 던전 일일 환산</td><td id="eventDaily">-</td></tr>
+                      <tr><td>교환소 경험치 북</td><td id="goldShopDaily">-</td></tr>
                       <tr><th>합계</th><th id="dailyTotalTable">-</th></tr>
                     </tbody>
                   </table>
@@ -402,9 +541,10 @@ th:first-child,td:first-child { text-align:left; }
               <details>
                 <summary>계산 기준</summary>
                 <div class="detail-body">
-                  <p>단축 일수는 패스로 절약한 경험치를 하루 평균 수급량으로 나누어 계산합니다.</p>
-                  <p>미궁은 난이도별 주간 평균을 7일 기준으로 환산합니다.</p>
-                  <p>이벤트는 2주간 최초 클리어 경험치 100,000을 일일 평균으로 반영합니다.</p>
+                  <p>패스로 건너뛴 레벨의 요구 경험치를 모두 합산해 절약 경험치를 계산합니다.</p>
+                  <p>하루 평균 수급량에는 무료 탐색, 경험치 던전, 주간 미궁, 이벤트 던전과 체크한 교환소 품목을 반영합니다.</p>
+                  <p>단축 일수는 절약 경험치를 하루 평균 수급량으로 나누어 계산합니다. (절약 경험치 ÷ 하루 평균 수급)</p>
+                  <p>패스 최대 효율 대비는 현재 절약 경험치를 해당 패스의 최대 절약 경험치와 비교한 비율입니다. (현재 절약 경험치 ÷ 패스 최대 절약 경험치 × 100)</p>
                 </div>
               </details>
             </div>
@@ -424,7 +564,7 @@ th:first-child,td:first-child { text-align:left; }
                 <div>
                   <label for="currentLevel">현재 원탁 레벨</label>
                   <input id="currentLevel" inputmode="numeric" min="200" max="300" type="number" value="250">
-                  <span class="hint">계산 지원 범위: 원탁 200→301</span>
+                  <span class="hint" id="levelRangeNotice">계산 지원 범위: 현재 레벨 200~300</span>
                 </div>
                 <div>
                   <label for="ownedBooks">보유 경험치 북</label>
@@ -436,22 +576,60 @@ th:first-child,td:first-child { text-align:left; }
             <div class="group">
               <div class="group-title">보유 재화</div>
               <div>
-                <label for="ownedTickets">보유 경험치 던전 티켓</label>
+                <label for="ownedTickets">보유 경험치 던전 티켓(퍼플 티켓)</label>
                 <input id="ownedTickets" inputmode="numeric" min="0" step="1" type="number" value="0">
               </div>
               <div>
-                <label for="levelDungeonStage">마지막 클리어 경험치 던전</label>
+                <label for="levelDungeonStage">마지막 클리어 경험치 던전 <span class="help-tip" tabindex="0" data-help="현재 도달한 층이 아니라 바로 이전 단계를 선택합니다. 예: 현재 76층이면 75단계를 선택합니다.">?</span></label>
                 <select id="levelDungeonStage"></select>
+                <span class="hint">현재 층보다 1 낮은 단계를 선택하세요.</span>
                 <span class="hint" id="ticketValueHint"></span>
               </div>
               <div>
-                <label for="exploreReward">무료 보물 탐색 1회 경험치 북</label>
-                <input id="exploreReward" inputmode="numeric" min="0" step="1" type="number" value="0">
-                <span class="hint">경험치 상자 1개는 입력한 2시간분 경험치의 절반으로 계산합니다.</span>
+                <label for="exploreReward">무료 보물 탐색 1회 경험치 북 <span class="help-tip" tabindex="0" data-help="무료 보물 탐색 2시간으로 획득하는 경험치 북 수량입니다. 남은 기간 계산의 하루 수급량에도 사용합니다.">?</span></label>
+                <input id="exploreReward" inputmode="numeric" min="0" step="1" type="number" placeholder="2시간분 수량 입력">
               </div>
               <div>
-                <label for="ownedBoxes">보유 경험치 상자</label>
+                <label for="ownedBoxes">보유 경험치 상자 <span class="help-tip" tabindex="0" data-help="상자 1개는 무료 탐색 1시간분으로 계산합니다.">?</span></label>
                 <input id="ownedBoxes" inputmode="numeric" min="0" step="1" type="number" value="0">
+              </div>
+            </div>
+
+            <div class="options">
+              <div class="options-title">추가 계산</div>
+              <div class="check">
+                <input id="enableRemainingPeriod" type="checkbox">
+                <label for="enableRemainingPeriod">300까지 예상 남은 기간 계산</label><span class="help-tip" tabindex="0" data-help="체크하면 보유 재화를 차감한 뒤, 선택한 하루 수급 조건을 기준으로 300까지 예상 남은 기간을 계산합니다.">?</span>
+              </div>
+            </div>
+
+            <div id="remainingPeriodInputs" hidden>
+              <div class="group">
+                <span class="hint">위에서 입력한 무료 탐색 보상과 경험치 던전 단계를 하루 수급 계산에도 사용합니다.</span>
+                <div>
+                  <label for="levelMaze">주간 미궁 <span class="help-tip" tabindex="0" data-help="헬 130,000 / 킹 65,000 경험치 북을 기준으로 계산합니다. 여러 실측값의 중간 기준값이며 실제 획득량은 달라질 수 있습니다.">?</span></label>
+                  <select id="levelMaze">
+                    <option value="none" selected>미포함</option>
+                    <option value="king">킹</option>
+                    <option value="hell">헬</option>
+                  </select>
+                </div>
+                <div class="check">
+                  <input id="levelEventDungeon" type="checkbox">
+                  <label for="levelEventDungeon">이벤트 던전 보상 포함</label><span class="help-tip" tabindex="0" data-help="2주마다 업데이트되는 이벤트 던전 보상 100,000개를 14일 평균으로 환산해 300까지 남은 기간 계산에 반영합니다.">?</span>
+                </div>
+              </div>
+
+              <div class="options">
+                <div class="options-title">교환소 품목</div>
+                <div class="check">
+                  <input id="levelShopTicket" type="checkbox">
+                  <label for="levelShopTicket">경험치 던전 티켓(퍼플 티켓)을 매일 1장 교환</label><span class="help-tip" tabindex="0" data-help="체크하면 교환소에서 퍼플 티켓 1장을 매일 교환하는 것으로 300까지 남은 기간 계산에 반영합니다.">?</span>
+                </div>
+                <div class="check">
+                  <input id="levelGoldShopBooks" type="checkbox">
+                  <label for="levelGoldShopBooks">경험치 북 매일 교환 · 1,000개 / 100,000골드</label><span class="help-tip" tabindex="0" data-help="체크하면 교환소에서 경험치 북 1,000개를 매일 교환하는 것으로 300까지 남은 기간 계산에 반영합니다.">?</span>
+                </div>
               </div>
             </div>
 
@@ -474,14 +652,22 @@ th:first-child,td:first-child { text-align:left; }
                 최종 도달 가능 레벨
                 <strong id="finalLevel">-</strong>
               </div>
+              <div class="headline period-headline" id="remainingPeriodHeadline" hidden>
+                <span class="period-title">현재 조건 기준 300까지 예상 남은 기간</span>
+                <div class="period-value-row">
+                  <strong id="daysTo300">-</strong>
+                  <span class="period-months" id="monthsTo300">-</span>
+                </div>
+              </div>
+              <p class="period-note" id="remainingPeriodNote" hidden>현재 조건을 기준으로 계산한 예상 기간입니다. 메인 스테이지 돌파와 이벤트 재화 교환 등에 따라 기간은 줄어들 수 있습니다. (300까지 남은 경험치 ÷ 하루 평균 수급)</p>
               <div class="cards">
                 <div class="card"><span>상승 레벨</span><b id="levelsGained">-</b></div>
-                <div class="card"><span>티켓 환산 경험치</span><b id="ticketBooks">-</b></div>
-                <div class="card"><span>상자 환산 경험치</span><b id="boxBooks">-</b></div>
-                <div class="card"><span>총 사용 가능 경험치</span><b id="totalBooks">-</b></div>
+                <div class="card"><span>보유 재화</span><b id="totalBooks">-</b></div>
                 <div class="card"><span>레벨업에 사용</span><b id="spentBooks">-</b></div>
                 <div class="card"><span>남는 경험치 북</span><b id="remainingBooks">-</b></div>
                 <div class="card"><span>다음 레벨까지 부족</span><b id="shortage">-</b></div>
+                <div class="card" id="remainingTo300Card" hidden><span>300까지 남은 경험치</span><b id="remainingTo300">-</b></div>
+                <div class="card" id="levelDailyTotalCard" hidden><span>하루 평균 수급</span><b id="levelDailyTotal">-</b></div>
               </div>
 
               <details>
@@ -490,9 +676,11 @@ th:first-child,td:first-child { text-align:left; }
                   <table>
                     <tbody>
                       <tr><td>보유 경험치 북</td><td id="ownedBooksOut">-</td></tr>
-                      <tr><td>티켓 수 × 1장 가치</td><td id="ticketFormula">-</td></tr>
-                      <tr><td>상자 수 × 1시간 탐색 보상</td><td id="boxFormula">-</td></tr>
-                      <tr><th>총 경험치 북</th><th id="totalBooksTable">-</th></tr>
+                      <tr><td>보유 퍼플 티켓 × 1장 가치</td><td id="ticketFormula">-</td></tr>
+                      <tr><td>보유 경험치 상자 × 무료 탐색 1시간분</td><td id="boxFormula">-</td></tr>
+                      <tr><th>보유 재화 환산 경험치</th><th id="totalBooksTable">-</th></tr>
+                      <tr id="requiredTo300Row" hidden><td>현재 레벨에서 300까지 필요</td><td id="requiredTo300Out">-</td></tr>
+                      <tr id="remainingTo300Row" hidden><td>보유 재화 차감 후 남은 양</td><td id="remainingTo300Out">-</td></tr>
                     </tbody>
                   </table>
                 </div>
@@ -513,9 +701,11 @@ th:first-child,td:first-child { text-align:left; }
               <details>
                 <summary>계산 기준</summary>
                 <div class="detail-body">
-                  <p>티켓 1장은 선택한 경험치 던전 단계의 1회 보상으로 환산합니다.</p>
-                  <p>경험치 상자 1개는 무료 탐색 2시간분 경험치의 절반으로 계산합니다.</p>
-                  <p>현재 레벨 200~300, 최종 301레벨까지 계산합니다.</p>
+                  <p>퍼플 티켓 1장은 클리어한 경험치 던전 단계의 1회 보상으로 환산합니다.</p>
+                  <p>상자 1개는 무료 탐색 1시간분으로 계산합니다.</p>
+                  <p>보유 재화 환산 경험치는 보유 경험치 북, 퍼플 티켓 환산 경험치, 경험치 상자 환산 경험치를 합산한 값입니다.</p>
+                  <p id="remainingPeriodRule1" hidden>보유 재화 반영 후 300까지 남은 경험치는 현재 레벨에서 300까지 필요한 경험치에서 보유 재화 환산 경험치를 뺀 값입니다. (현재 레벨에서 300까지 필요한 경험치 - 보유 재화 환산 경험치)</p>
+                  <p id="remainingPeriodRule2" hidden>300까지 예상 남은 기간은 300까지 남은 경험치를 하루 평균 수급량으로 나누어 계산합니다. (300까지 남은 경험치 ÷ 하루 평균 수급)</p>
                 </div>
               </details>
             </div>
@@ -540,6 +730,9 @@ const EVENT_DAYS = 14;
 const GOLD_SHOP_DAILY_EXP = 1000;
 
 const $ = id => document.getElementById(id);
+const SUPPORTED_LEVEL_MIN = 200;
+const SUPPORTED_LEVEL_MAX = 300;
+
 const fmt = (value, digits=0) => Number(value).toLocaleString("ko-KR", {
   maximumFractionDigits:digits
 });
@@ -550,7 +743,7 @@ function fillStageSelect(selectId, hintUpdater) {
     const option = document.createElement("option");
     option.value = stage;
     option.textContent = `${stage}단계`;
-    if (stage === 75) option.selected = true;
+    if (stage === 1) option.selected = true;
     select.appendChild(option);
   }
   select.addEventListener("change", hintUpdater);
@@ -574,6 +767,46 @@ function clearError(id) {
   box.style.display = "none";
 }
 
+function readInteger(id, label) {
+  const raw = $(id).value.trim();
+  const value = Number(raw);
+  if (raw === "" || !Number.isInteger(value)) {
+    throw new Error(`${label}을 정수로 입력해 주세요.`);
+  }
+  return value;
+}
+
+function readNonNegativeInteger(id, label) {
+  const value = readInteger(id, label);
+  if (value < 0) {
+    throw new Error(`${label}을 0 이상의 정수로 입력해 주세요.`);
+  }
+  return value;
+}
+
+function validateSupportedLevel(level) {
+  if (level < SUPPORTED_LEVEL_MIN || level > SUPPORTED_LEVEL_MAX) {
+    throw new Error(`현재 원탁 레벨은 ${SUPPORTED_LEVEL_MIN}~${SUPPORTED_LEVEL_MAX}만 사용할 수 있습니다.`);
+  }
+}
+
+function getRequiredExp(level) {
+  validateSupportedLevel(level);
+  const required = ROUND_TABLE_EXP[level];
+  if (required === undefined) {
+    throw new Error(`${level}레벨의 요구 경험치 데이터를 찾지 못했습니다.`);
+  }
+  return required;
+}
+
+function getDungeonReward(stage) {
+  const reward = DUNGEON_EXP[stage];
+  if (reward === undefined) {
+    throw new Error(`${stage}단계의 던전 보상 데이터를 찾지 못했습니다.`);
+  }
+  return reward;
+}
+
 function checkPassAvailability(showAlert=false) {
   const pass = PASS_CONFIG[$("passType").value];
   const level = Number($("level").value);
@@ -582,6 +815,14 @@ function checkPassAvailability(showAlert=false) {
   if (!Number.isInteger(level)) {
     notice.textContent = "현재 원탁 레벨을 정수로 입력해 주세요.";
     notice.className = "hint unavailable";
+    return false;
+  }
+
+  if (level < SUPPORTED_LEVEL_MIN || level > SUPPORTED_LEVEL_MAX) {
+    const message = `이 계산기는 현재 레벨 ${SUPPORTED_LEVEL_MIN}~${SUPPORTED_LEVEL_MAX}만 사용할 수 있습니다.`;
+    notice.textContent = `사용 불가 · 지원 범위 ${SUPPORTED_LEVEL_MIN}~${SUPPORTED_LEVEL_MAX}`;
+    notice.className = "hint unavailable";
+    if (showAlert) window.alert(message);
     return false;
   }
 
@@ -599,174 +840,334 @@ function checkPassAvailability(showAlert=false) {
   return false;
 }
 
+function checkLevelRange(showAlert=false) {
+  const level = Number($("currentLevel").value);
+  const notice = $("levelRangeNotice");
+
+  if (!Number.isInteger(level)) {
+    notice.textContent = "현재 원탁 레벨을 정수로 입력해 주세요.";
+    notice.className = "hint unavailable";
+    return false;
+  }
+
+  const available = level >= SUPPORTED_LEVEL_MIN && level <= SUPPORTED_LEVEL_MAX;
+  if (available) {
+    notice.textContent = `사용 가능 · 현재 레벨 ${SUPPORTED_LEVEL_MIN}~${SUPPORTED_LEVEL_MAX}`;
+    notice.className = "hint available";
+    return true;
+  }
+
+  const message = `이 계산기는 현재 레벨 ${SUPPORTED_LEVEL_MIN}~${SUPPORTED_LEVEL_MAX}만 사용할 수 있습니다.`;
+  notice.textContent = `사용 불가 · 지원 범위 ${SUPPORTED_LEVEL_MIN}~${SUPPORTED_LEVEL_MAX}`;
+  notice.className = "hint unavailable";
+  if (showAlert) window.alert(message);
+  return false;
+}
+
 function updatePassDungeonHint() {
   const stage = Number($("passDungeonStage").value);
-  const reward = DUNGEON_EXP[stage];
+  const reward = getDungeonReward(stage);
   $("passDungeonHint").textContent = `1회 ${fmt(reward)} · 무료 3회 ${fmt(reward * 3)}`;
 }
 
-function calculatePass() {
-  clearError("passError");
-
+function readPassInput() {
   const pass = PASS_CONFIG[$("passType").value];
-  const level = Number($("level").value);
+  const level = readInteger("level", "현재 원탁 레벨");
+  validateSupportedLevel(level);
+
+  if (level < pass.min || level > pass.max) {
+    throw new Error(`${pass.name}은 현재 레벨 ${pass.min}~${pass.max}에서 사용할 수 있습니다.`);
+  }
+
   const exploreRaw = $("explore").value.trim();
   const explore = Number(exploreRaw);
-
-  if (!Number.isInteger(level)) {
-    showError("passError", "현재 원탁 레벨을 정수로 입력해 주세요.");
-    setResultState("passResult", "passPlaceholder", false);
-    return;
-  }
-  if (!checkPassAvailability(true)) {
-    showError("passError", `${pass.name}은 현재 레벨 ${pass.min}~${pass.max}에서 사용할 수 있습니다.`);
-    setResultState("passResult", "passPlaceholder", false);
-    return;
-  }
   if (exploreRaw === "" || !Number.isFinite(explore) || explore < 0) {
-    showError("passError", "무료 탐색 1회 경험치 북 수량을 입력해 주세요.");
-    setResultState("passResult", "passPlaceholder", false);
-    return;
+    throw new Error("무료 탐색 1회 경험치 북 수량을 입력해 주세요.");
   }
 
-  const stage = Number($("passDungeonStage").value);
-  const usable = Math.min(pass.tickets, pass.max - level + 1);
-  const resultLevel = level + usable;
-  const left = pass.tickets - usable;
+  return {
+    pass,
+    level,
+    explore,
+    stage:Number($("passDungeonStage").value),
+    maze:$("maze").value,
+    includeShopTicket:$("shopTicket").checked,
+    includeGoldShop:$("goldShopBooks").checked,
+    includeEvent:$("passEventDungeon").checked
+  };
+}
 
-  let saved = 0;
-  for (let current=level; current<resultLevel; current++) {
-    const required = ROUND_TABLE_EXP[current];
-    if (required === undefined) {
-      showError("passError", `${current}레벨의 요구 경험치 데이터를 찾지 못했습니다.`);
-      return;
-    }
-    saved += required;
+function sumRequiredExp(fromLevel, toLevelExclusive) {
+  let total = 0;
+  for (let level=fromLevel; level<toLevelExclusive; level++) {
+    total += getRequiredExp(level);
   }
+  return total;
+}
 
-  const dungeonOne = DUNGEON_EXP[stage];
-  const idleDaily = explore * 13;
-  const dungeonDaily = dungeonOne * 3;
-  const shopDaily = $("shopTicket").checked ? dungeonOne : 0;
-  const mazeDaily = MAZE_WEEKLY[$("maze").value] / 7;
-  const eventDaily = EVENT_TOTAL / EVENT_DAYS;
-  const goldShopDaily = $("goldShopBooks").checked ? GOLD_SHOP_DAILY_EXP : 0;
-  const daily = idleDaily + dungeonDaily + shopDaily + mazeDaily + eventDaily + goldShopDaily;
+function calculateDailyExp(input) {
+  const dungeonOne = getDungeonReward(input.stage);
+  const detail = {
+    idleDaily:input.explore * 13,
+    dungeonDaily:dungeonOne * 3,
+    shopDaily:input.includeShopTicket ? dungeonOne : 0,
+    mazeDaily:MAZE_WEEKLY[input.maze] / 7,
+    eventDaily:input.includeEvent ? EVENT_TOTAL / EVENT_DAYS : 0,
+    goldShopDaily:input.includeGoldShop ? GOLD_SHOP_DAILY_EXP : 0
+  };
+  detail.total = Object.values(detail).reduce((sum, value) => sum + value, 0);
+  return detail;
+}
 
-  const days = saved / daily;
-  const efficiency = saved / pass.maxSaved * 100;
+function computePassResult(input) {
+  const usableTickets = Math.min(input.pass.tickets, input.pass.max - input.level + 1);
+  const resultLevel = input.level + usableTickets;
+  const savedExp = sumRequiredExp(input.level, resultLevel);
+  const daily = calculateDailyExp(input);
+  const days = savedExp / daily.total;
   let wholeDays = Math.floor(days);
   let hours = Math.round((days - wholeDays) * 24);
   if (hours === 24) { wholeDays += 1; hours = 0; }
 
-  $("daysSaved").textContent = `${days.toFixed(2)}일 · 약 ${wholeDays}일 ${hours}시간`;
-  $("levelResult").textContent = `${level} → ${resultLevel}`;
-  $("ticketUse").textContent = `${usable}장`;
-  $("ticketLeft").textContent = `${left}장`;
-  $("savedExp").textContent = fmt(saved);
-  $("dailyTotal").textContent = fmt(daily, 1);
-  $("efficiency").textContent = `${efficiency.toFixed(1)}%`;
+  return {
+    resultLevel,
+    usableTickets,
+    remainingTickets:input.pass.tickets - usableTickets,
+    savedExp,
+    efficiency:savedExp / input.pass.maxSaved * 100,
+    days,
+    wholeDays,
+    hours,
+    daily
+  };
+}
 
-  $("idleDaily").textContent = fmt(idleDaily);
-  $("dungeonDaily").textContent = fmt(dungeonDaily);
-  $("shopDaily").textContent = fmt(shopDaily);
-  $("mazeDaily").textContent = fmt(mazeDaily, 1);
-  $("eventDaily").textContent = fmt(eventDaily, 1);
-  $("goldShopDaily").textContent = fmt(goldShopDaily);
-  $("dailyTotalTable").textContent = fmt(daily, 1);
-
+function renderPassResult(input, result) {
+  $("daysSaved").textContent = `${result.days.toFixed(2)}일 · 약 ${result.wholeDays}일 ${result.hours}시간`;
+  $("levelResult").textContent = `${input.level} → ${result.resultLevel}`;
+  $("ticketUse").textContent = `${result.usableTickets}장`;
+  $("ticketLeft").textContent = `${result.remainingTickets}장`;
+  $("savedExp").textContent = fmt(result.savedExp);
+  $("dailyTotal").textContent = fmt(result.daily.total, 1);
+  $("efficiency").textContent = `${result.efficiency.toFixed(1)}%`;
+  $("idleDaily").textContent = fmt(result.daily.idleDaily);
+  $("dungeonDaily").textContent = fmt(result.daily.dungeonDaily);
+  $("shopDaily").textContent = fmt(result.daily.shopDaily);
+  $("mazeDaily").textContent = fmt(result.daily.mazeDaily, 1);
+  $("eventDaily").textContent = fmt(result.daily.eventDaily, 1);
+  $("goldShopDaily").textContent = fmt(result.daily.goldShopDaily);
+  $("dailyTotalTable").textContent = fmt(result.daily.total, 1);
   setResultState("passResult", "passPlaceholder", true);
 }
 
-function readNonNegativeInteger(id, label) {
-  const raw = $(id).value.trim();
-  const value = Number(raw);
-  if (raw === "" || !Number.isInteger(value) || value < 0) {
-    throw new Error(`${label}을 0 이상의 정수로 입력해 주세요.`);
+function calculatePass() {
+  clearError("passError");
+  try {
+    const input = readPassInput();
+    const result = computePassResult(input);
+    renderPassResult(input, result);
+  } catch (error) {
+    showError("passError", error.message);
+    setResultState("passResult", "passPlaceholder", false);
   }
-  return value;
 }
 
 function updateTicketHint() {
   const stage = Number($("levelDungeonStage").value);
-  $("ticketValueHint").textContent = `티켓 1장 = 경험치 북 ${fmt(DUNGEON_EXP[stage])}개`;
+  $("ticketValueHint").textContent = `퍼플 티켓 1장 = 경험치 북 ${fmt(getDungeonReward(stage))}개`;
+}
+
+function readLevelInput() {
+  const level = readInteger("currentLevel", "현재 원탁 레벨");
+  validateSupportedLevel(level);
+  return {
+    level,
+    ownedBooks:readNonNegativeInteger("ownedBooks", "보유 경험치 북"),
+    ownedTickets:readNonNegativeInteger("ownedTickets", "보유 경험치 던전 티켓(퍼플 티켓)"),
+    exploreReward:readNonNegativeInteger("exploreReward", "무료 보물 탐색 1회 경험치 북"),
+    ownedBoxes:readNonNegativeInteger("ownedBoxes", "보유 경험치 상자"),
+    stage:Number($("levelDungeonStage").value),
+    calculateRemainingPeriod:$("enableRemainingPeriod").checked,
+    maze:$("levelMaze").value,
+    includeShopTicket:$("levelShopTicket").checked,
+    includeGoldShop:$("levelGoldShopBooks").checked,
+    includeEvent:$("levelEventDungeon").checked
+  };
+}
+
+function convertOwnedResources(input) {
+  const oneTicketValue = getDungeonReward(input.stage);
+  const ticketBooks = input.ownedTickets * oneTicketValue;
+  const oneBoxValue = input.exploreReward / 2;
+  const boxBooks = input.ownedBoxes * oneBoxValue;
+  return {
+    oneTicketValue,
+    ticketBooks,
+    oneBoxValue,
+    boxBooks,
+    total:input.ownedBooks + ticketBooks + boxBooks
+  };
+}
+
+// 현재 레벨부터 300레벨까지 필요한 경험치 총합을 계산합니다.
+// 300 → 301에 필요한 경험치는 포함하지 않습니다.
+function calculateRequiredExpTo300(currentLevel) {
+  if (currentLevel >= 300) return 0;
+  return sumRequiredExp(currentLevel, 300);
+}
+
+// 현재 가진 경험치 북·티켓·상자를 모두 뺀 뒤,
+// 300레벨까지 실제로 더 필요한 경험치를 계산합니다.
+function calculateRemainingExpTo300(currentLevel, totalAvailableExp) {
+  const requiredTo300 = calculateRequiredExpTo300(currentLevel);
+  const remainingTo300 = Math.max(0, requiredTo300 - totalAvailableExp);
+  return { requiredTo300, remainingTo300 };
+}
+
+// 보유 재화 계산 탭의 하루 평균 경험치 수급량을 계산합니다.
+function calculateLevelDailyExp(input) {
+  return calculateDailyExp({
+    explore:input.exploreReward,
+    stage:input.stage,
+    maze:input.maze,
+    includeShopTicket:input.includeShopTicket,
+    includeGoldShop:input.includeGoldShop,
+    includeEvent:input.includeEvent
+  });
+}
+
+// 남은 경험치를 하루 평균 수급량으로 나누어 예상 기간을 계산합니다.
+function calculateDaysTo300(remainingExp, dailyExp) {
+  if (remainingExp <= 0) {
+    return { days:0, wholeDays:0, hours:0, months:0 };
+  }
+  if (dailyExp <= 0) return null;
+
+  const days = remainingExp / dailyExp;
+  let wholeDays = Math.floor(days);
+  let hours = Math.round((days - wholeDays) * 24);
+  if (hours === 24) { wholeDays += 1; hours = 0; }
+  // 개월 표시는 30일을 1개월로 환산한 예상값입니다.
+  const months = days / 30;
+  return { days, wholeDays, hours, months };
+}
+
+function applyExpToLevels(startLevel, totalExp) {
+  let current = startLevel;
+  let remaining = totalExp;
+  let spent = 0;
+  const breakdown = [];
+
+  while (current <= SUPPORTED_LEVEL_MAX) {
+    const required = getRequiredExp(current);
+    if (remaining < required) break;
+    remaining -= required;
+    spent += required;
+    breakdown.push({ from:current, to:current+1, required, remaining });
+    current += 1;
+  }
+
+  const shortage = current <= SUPPORTED_LEVEL_MAX
+    ? Math.max(0, getRequiredExp(current) - remaining)
+    : null;
+
+  return { current, remaining, spent, breakdown, shortage };
+}
+
+function renderBreakdown(rows) {
+  const tbody = $("breakdownBody");
+  tbody.innerHTML = "";
+
+  if (rows.length === 0) {
+    const tr = document.createElement("tr");
+    tr.innerHTML = '<td colspan="3" style="text-align:center;color:var(--muted)">현재 보유량으로는 레벨업할 수 없습니다.</td>';
+    tbody.appendChild(tr);
+    return;
+  }
+
+  for (const row of rows) {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<td>${row.from} → ${row.to}</td><td>${fmt(row.required)}</td><td>${fmt(row.remaining)}</td>`;
+    tbody.appendChild(tr);
+  }
+}
+
+function setRemainingPeriodResultVisible(visible) {
+  $("remainingPeriodHeadline").hidden = !visible;
+  $("remainingPeriodNote").hidden = !visible;
+  $("remainingTo300Card").hidden = !visible;
+  $("levelDailyTotalCard").hidden = !visible;
+  $("requiredTo300Row").hidden = !visible;
+  $("remainingTo300Row").hidden = !visible;
+  $("remainingPeriodRule1").hidden = !visible;
+  $("remainingPeriodRule2").hidden = !visible;
+}
+
+function renderLevelResult(input, resources, result, remainingResult=null, dailyResult=null, daysResult=null) {
+  $("finalLevel").textContent = `${input.level} → ${result.current}`;
+  $("levelsGained").textContent = `${result.current - input.level}레벨`;
+  $("totalBooks").textContent = fmt(resources.total);
+  $("spentBooks").textContent = fmt(result.spent);
+  $("remainingBooks").textContent = fmt(result.remaining);
+  $("shortage").textContent = result.shortage === null
+    ? "301레벨 도달 · 계산 지원 범위 종료"
+    : fmt(result.shortage);
+
+  setRemainingPeriodResultVisible(input.calculateRemainingPeriod);
+  if (input.calculateRemainingPeriod) {
+    $("remainingTo300").textContent = fmt(remainingResult.remainingTo300);
+    $("levelDailyTotal").textContent = fmt(dailyResult.total, 1);
+    $("daysTo300").textContent = remainingResult.remainingTo300 === 0
+      ? "300레벨 도달"
+      : daysResult
+        ? `약 ${daysResult.wholeDays}일 ${daysResult.hours}시간`
+        : "하루 수급량을 계산할 수 없음";
+    $("monthsTo300").textContent = remainingResult.remainingTo300 === 0
+      ? "추가 기간 없음"
+      : daysResult
+        ? `약 ${daysResult.months.toFixed(1)}개월`
+        : "";
+    $("requiredTo300Out").textContent = fmt(remainingResult.requiredTo300);
+    $("remainingTo300Out").textContent = fmt(remainingResult.remainingTo300);
+  }
+
+  $("ownedBooksOut").textContent = fmt(input.ownedBooks);
+  $("ticketFormula").textContent = `${fmt(input.ownedTickets)}장 × ${fmt(resources.oneTicketValue)} = ${fmt(resources.ticketBooks)}`;
+  $("boxFormula").textContent = `${fmt(input.ownedBoxes)}개 × (${fmt(input.exploreReward)} ÷ 2) = ${fmt(resources.boxBooks)}`;
+  $("totalBooksTable").textContent = fmt(resources.total);
+  renderBreakdown(result.breakdown);
+  setResultState("levelResultPanel", "levelPlaceholder", true);
 }
 
 function calculateLevel() {
   clearError("levelError");
-
   try {
-    const level = readNonNegativeInteger("currentLevel", "현재 원탁 레벨");
-    const ownedBooks = readNonNegativeInteger("ownedBooks", "보유 경험치 북");
-    const ownedTickets = readNonNegativeInteger("ownedTickets", "보유 경험치 던전 티켓");
-    const exploreReward = readNonNegativeInteger("exploreReward", "무료 보물 탐색 1회 경험치 북");
-    const ownedBoxes = readNonNegativeInteger("ownedBoxes", "보유 경험치 상자");
-    const stage = Number($("levelDungeonStage").value);
+    const input = readLevelInput();
+    const resources = convertOwnedResources(input);
+    const result = applyExpToLevels(input.level, resources.total);
+    let remainingResult = null;
+    let dailyResult = null;
+    let daysResult = null;
 
-    if (level < 200 || level > 300) {
-      throw new Error("현재 원탁 레벨은 200~300 범위에서 입력해 주세요.");
+    if (input.calculateRemainingPeriod) {
+      remainingResult = calculateRemainingExpTo300(input.level, resources.total);
+      dailyResult = calculateLevelDailyExp(input);
+      daysResult = calculateDaysTo300(remainingResult.remainingTo300, dailyResult.total);
     }
 
-    const oneTicketValue = DUNGEON_EXP[stage];
-    const ticketBooks = ownedTickets * oneTicketValue;
-    const oneBoxValue = exploreReward / 2;
-    const boxBooks = ownedBoxes * oneBoxValue;
-    const total = ownedBooks + ticketBooks + boxBooks;
-
-    let current = level;
-    let remaining = total;
-    let spent = 0;
-    const breakdown = [];
-
-    while (current <= 300) {
-      const required = ROUND_TABLE_EXP[current];
-      if (required === undefined || remaining < required) break;
-      remaining -= required;
-      spent += required;
-      breakdown.push({ from:current, to:current+1, required, remaining });
-      current += 1;
-    }
-
-    let shortage = null;
-    if (current <= 300 && ROUND_TABLE_EXP[current] !== undefined) {
-      shortage = Math.max(0, ROUND_TABLE_EXP[current] - remaining);
-    }
-
-    $("finalLevel").textContent = `${level} → ${current}`;
-    $("levelsGained").textContent = `${current - level}레벨`;
-    $("ticketBooks").textContent = fmt(ticketBooks);
-    $("boxBooks").textContent = fmt(boxBooks);
-    $("totalBooks").textContent = fmt(total);
-    $("spentBooks").textContent = fmt(spent);
-    $("remainingBooks").textContent = fmt(remaining);
-    $("shortage").textContent = shortage === null
-      ? "301레벨 도달 · 계산 지원 범위 종료"
-      : `${fmt(shortage)}개`;
-
-    $("ownedBooksOut").textContent = fmt(ownedBooks);
-    $("ticketFormula").textContent = `${fmt(ownedTickets)}장 × ${fmt(oneTicketValue)} = ${fmt(ticketBooks)}`;
-    $("boxFormula").textContent = `${fmt(ownedBoxes)}개 × (${fmt(exploreReward)} ÷ 2) = ${fmt(boxBooks)}`;
-    $("totalBooksTable").textContent = fmt(total);
-
-    const tbody = $("breakdownBody");
-    tbody.innerHTML = "";
-    if (breakdown.length === 0) {
-      const tr = document.createElement("tr");
-      tr.innerHTML = '<td colspan="3" style="text-align:center;color:var(--muted)">현재 보유량으로는 레벨업할 수 없습니다.</td>';
-      tbody.appendChild(tr);
-    } else {
-      for (const row of breakdown) {
-        const tr = document.createElement("tr");
-        tr.innerHTML = `<td>${row.from} → ${row.to}</td><td>${fmt(row.required)}</td><td>${fmt(row.remaining)}</td>`;
-        tbody.appendChild(tr);
-      }
-    }
-
-    setResultState("levelResultPanel", "levelPlaceholder", true);
+    renderLevelResult(input, resources, result, remainingResult, dailyResult, daysResult);
   } catch (error) {
     showError("levelError", error.message);
     setResultState("levelResultPanel", "levelPlaceholder", false);
   }
+}
+
+function toggleRemainingPeriodInputs() {
+  $("remainingPeriodInputs").hidden = !$("enableRemainingPeriod").checked;
+
+  // 선택 상태를 바꾸면 이전에 계산된 남은 기간 결과는 숨깁니다.
+  // 새 조건으로 다시 계산했을 때만 기간 결과를 표시합니다.
+  setRemainingPeriodResultVisible(false);
 }
 
 function activateTab(type) {
@@ -782,14 +1183,18 @@ $("tabPass").addEventListener("click", () => activateTab("pass"));
 $("tabLevel").addEventListener("click", () => activateTab("level"));
 $("calculatePass").addEventListener("click", calculatePass);
 $("calculateLevel").addEventListener("click", calculateLevel);
-
+$("enableRemainingPeriod").addEventListener("change", toggleRemainingPeriodInputs);
 $("passType").addEventListener("change", checkPassAvailability);
 $("level").addEventListener("input", () => checkPassAvailability(false));
 $("level").addEventListener("change", () => checkPassAvailability(true));
+$("currentLevel").addEventListener("input", () => checkLevelRange(false));
+$("currentLevel").addEventListener("change", () => checkLevelRange(true));
 
 fillStageSelect("passDungeonStage", updatePassDungeonHint);
 fillStageSelect("levelDungeonStage", updateTicketHint);
 checkPassAvailability(false);
+checkLevelRange(false);
+toggleRemainingPeriodInputs();
 </script>
 </body>
 </html>
