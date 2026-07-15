@@ -352,7 +352,8 @@ th:first-child,td:first-child { text-align:left; }
   transition:opacity .15s ease,transform .15s ease;
 }
 .help-tip:hover::after,
-.help-tip:focus::after {
+.help-tip:focus::after,
+.help-tip.is-open::after {
   opacity:1;
   visibility:visible;
   transform:translate(-50%,0);
@@ -379,8 +380,10 @@ th:first-child,td:first-child { text-align:left; }
 }
 .check .help-tip:hover::after,
 .check .help-tip:focus::after,
+.check .help-tip.is-open::after,
 .card .help-tip:hover::after,
-.card .help-tip:focus::after {
+.card .help-tip:focus::after,
+.card .help-tip.is-open::after {
   transform:translateY(0);
 }
 
@@ -405,10 +408,13 @@ th:first-child,td:first-child { text-align:left; }
   }
   .help-tip:hover::after,
   .help-tip:focus::after,
+  .help-tip.is-open::after,
   .check .help-tip:hover::after,
   .check .help-tip:focus::after,
+  .check .help-tip.is-open::after,
   .card .help-tip:hover::after,
-  .card .help-tip:focus::after {
+  .card .help-tip:focus::after,
+  .card .help-tip.is-open::after {
     transform:translateY(0);
   }
   .tab { min-height:54px; padding:7px 5px; font-size:.82rem; }
@@ -458,13 +464,23 @@ th:first-child,td:first-child { text-align:left; }
             <div class="group">
               <div class="group-title">하루 경험치 수급 조건</div>
               <div>
-                <label for="explore">무료 탐색 1회 경험치 북 <span class="help-tip" tabindex="0" data-help="무료 보물 탐색 2시간으로 획득하는 경험치 북 수량입니다. 방치 24시간과 합산하여 일일 수급량을 계산합니다.">?</span></label>
+                <label for="explore">단기 탐색 1회 경험치 북 <span class="help-tip" tabindex="0" data-help="단기 탐색 1회(2시간)로 획득하는 경험치 북 수량입니다. 방치 24시간과 합산하여 일일 수급량을 계산합니다.">?</span></label>
                 <input id="explore" inputmode="numeric" min="0" step="1" type="number" placeholder="2시간분 수량 입력">
+              </div>
+              <div>
+                <label for="passShortExploreCount">하루 단기 탐색 횟수 (최대 5회) <span class="help-tip" tabindex="0" data-help="무료 탐색과 유료 탐색을 합친 하루 총 단기 탐색 횟수입니다.">?</span></label>
+                <select id="passShortExploreCount">
+                  <option value="1" selected>1회</option>
+                  <option value="2">2회</option>
+                  <option value="3">3회</option>
+                  <option value="4">4회</option>
+                  <option value="5">5회</option>
+                </select>
               </div>
               <div>
                 <label for="passDungeonStage">마지막 클리어 경험치 던전 <span class="help-tip" tabindex="0" data-help="현재 도달한 층이 아니라 바로 이전 단계를 선택합니다. 예: 현재 76층이면 75단계를 선택합니다.">?</span></label>
                 <select id="passDungeonStage"></select>
-                <span class="hint">현재 층보다 1 낮은 단계를 선택하세요.</span>
+                <span class="hint">현재 층보다 1단계 낮은 단계를 선택하세요.</span>
                 <span class="hint" id="passDungeonHint"></span>
               </div>
               <div>
@@ -526,7 +542,7 @@ th:first-child,td:first-child { text-align:left; }
                 <div class="table-wrap">
                   <table>
                     <tbody>
-                      <tr><td>방치 24시간 + 무료 탐색 2시간</td><td id="idleDaily">-</td></tr>
+                      <tr><td>방치 24시간 + 하루 단기 탐색</td><td id="idleDaily">-</td></tr>
                       <tr><td>경험치 던전 무료 소탕 3회</td><td id="dungeonDaily">-</td></tr>
                       <tr><td>교환소 퍼플 티켓 1회</td><td id="shopDaily">-</td></tr>
                       <tr><td>미궁 일일 환산</td><td id="mazeDaily">-</td></tr>
@@ -542,7 +558,7 @@ th:first-child,td:first-child { text-align:left; }
                 <summary>계산 기준</summary>
                 <div class="detail-body">
                   <p>패스로 건너뛴 레벨의 요구 경험치를 모두 합산해 절약 경험치를 계산합니다.</p>
-                  <p>하루 평균 수급량에는 무료 탐색, 경험치 던전, 주간 미궁, 이벤트 던전과 체크한 교환소 품목을 반영합니다.</p>
+                  <p>하루 평균 수급량에는 단기 탐색, 경험치 던전, 주간 미궁, 이벤트 던전과 체크한 교환소 품목을 반영합니다.</p>
                   <p>단축 일수는 절약 경험치를 하루 평균 수급량으로 나누어 계산합니다. (절약 경험치 ÷ 하루 평균 수급)</p>
                   <p>패스 최대 효율 대비는 현재 절약 경험치를 해당 패스의 최대 절약 경험치와 비교한 비율입니다. (현재 절약 경험치 ÷ 패스 최대 절약 경험치 × 100)</p>
                 </div>
@@ -582,15 +598,25 @@ th:first-child,td:first-child { text-align:left; }
               <div>
                 <label for="levelDungeonStage">마지막 클리어 경험치 던전 <span class="help-tip" tabindex="0" data-help="현재 도달한 층이 아니라 바로 이전 단계를 선택합니다. 예: 현재 76층이면 75단계를 선택합니다.">?</span></label>
                 <select id="levelDungeonStage"></select>
-                <span class="hint">현재 층보다 1 낮은 단계를 선택하세요.</span>
+                <span class="hint">현재 층보다 1단계 낮은 단계를 선택하세요.</span>
                 <span class="hint" id="ticketValueHint"></span>
               </div>
               <div>
-                <label for="exploreReward">무료 보물 탐색 1회 경험치 북 <span class="help-tip" tabindex="0" data-help="무료 보물 탐색 2시간으로 획득하는 경험치 북 수량입니다. 남은 기간 계산의 하루 수급량에도 사용합니다.">?</span></label>
+                <label for="exploreReward">단기 탐색 1회 경험치 북 <span class="help-tip" tabindex="0" data-help="단기 탐색 1회(2시간)로 획득하는 경험치 북 수량입니다. 남은 기간 계산의 하루 수급량에도 사용합니다.">?</span></label>
                 <input id="exploreReward" inputmode="numeric" min="0" step="1" type="number" placeholder="2시간분 수량 입력">
               </div>
               <div>
-                <label for="ownedBoxes">보유 경험치 상자 <span class="help-tip" tabindex="0" data-help="상자 1개는 무료 탐색 1시간분으로 계산합니다.">?</span></label>
+                <label for="levelShortExploreCount">하루 단기 탐색 횟수 (최대 5회) <span class="help-tip" tabindex="0" data-help="무료 탐색과 유료 탐색을 합친 하루 총 단기 탐색 횟수입니다.">?</span></label>
+                <select id="levelShortExploreCount">
+                  <option value="1" selected>1회</option>
+                  <option value="2">2회</option>
+                  <option value="3">3회</option>
+                  <option value="4">4회</option>
+                  <option value="5">5회</option>
+                </select>
+              </div>
+              <div>
+                <label for="ownedBoxes">보유 경험치 상자 <span class="help-tip" tabindex="0" data-help="상자 1개는 단기 탐색 1시간분으로 계산합니다.">?</span></label>
                 <input id="ownedBoxes" inputmode="numeric" min="0" step="1" type="number" value="0">
               </div>
             </div>
@@ -605,7 +631,7 @@ th:first-child,td:first-child { text-align:left; }
 
             <div id="remainingPeriodInputs" hidden>
               <div class="group">
-                <span class="hint">위에서 입력한 무료 탐색 보상과 경험치 던전 단계를 하루 수급 계산에도 사용합니다.</span>
+                <span class="hint">위에서 입력한 단기 탐색 보상과 경험치 던전 단계를 하루 수급 계산에도 사용합니다.</span>
                 <div>
                   <label for="levelMaze">주간 미궁 <span class="help-tip" tabindex="0" data-help="헬 130,000 / 킹 65,000 경험치 북을 기준으로 계산합니다. 여러 실측값의 중간 기준값이며 실제 획득량은 달라질 수 있습니다.">?</span></label>
                   <select id="levelMaze">
@@ -677,7 +703,7 @@ th:first-child,td:first-child { text-align:left; }
                     <tbody>
                       <tr><td>보유 경험치 북</td><td id="ownedBooksOut">-</td></tr>
                       <tr><td>보유 퍼플 티켓 × 1장 가치</td><td id="ticketFormula">-</td></tr>
-                      <tr><td>보유 경험치 상자 × 무료 탐색 1시간분</td><td id="boxFormula">-</td></tr>
+                      <tr><td>보유 경험치 상자 × 단기 탐색 1시간분</td><td id="boxFormula">-</td></tr>
                       <tr><th>보유 재화 환산 경험치</th><th id="totalBooksTable">-</th></tr>
                       <tr id="requiredTo300Row" hidden><td>현재 레벨에서 300까지 필요</td><td id="requiredTo300Out">-</td></tr>
                       <tr id="remainingTo300Row" hidden><td>보유 재화 차감 후 남은 양</td><td id="remainingTo300Out">-</td></tr>
@@ -702,7 +728,7 @@ th:first-child,td:first-child { text-align:left; }
                 <summary>계산 기준</summary>
                 <div class="detail-body">
                   <p>퍼플 티켓 1장은 클리어한 경험치 던전 단계의 1회 보상으로 환산합니다.</p>
-                  <p>상자 1개는 무료 탐색 1시간분으로 계산합니다.</p>
+                  <p>상자 1개는 단기 탐색 1시간분으로 계산합니다.</p>
                   <p>보유 재화 환산 경험치는 보유 경험치 북, 퍼플 티켓 환산 경험치, 경험치 상자 환산 경험치를 합산한 값입니다.</p>
                   <p id="remainingPeriodRule1" hidden>보유 재화 반영 후 300까지 남은 경험치는 현재 레벨에서 300까지 필요한 경험치에서 보유 재화 환산 경험치를 뺀 값입니다. (현재 레벨에서 300까지 필요한 경험치 - 보유 재화 환산 경험치)</p>
                   <p id="remainingPeriodRule2" hidden>300까지 예상 남은 기간은 300까지 남은 경험치를 하루 평균 수급량으로 나누어 계산합니다. (300까지 남은 경험치 ÷ 하루 평균 수급)</p>
@@ -882,13 +908,14 @@ function readPassInput() {
   const exploreRaw = $("explore").value.trim();
   const explore = Number(exploreRaw);
   if (exploreRaw === "" || !Number.isFinite(explore) || explore < 0) {
-    throw new Error("무료 탐색 1회 경험치 북 수량을 입력해 주세요.");
+    throw new Error("단기 탐색 1회 경험치 북 수량을 입력해 주세요.");
   }
 
   return {
     pass,
     level,
     explore,
+    shortExploreCount:Number($("passShortExploreCount").value),
     stage:Number($("passDungeonStage").value),
     maze:$("maze").value,
     includeShopTicket:$("shopTicket").checked,
@@ -905,10 +932,13 @@ function sumRequiredExp(fromLevel, toLevelExclusive) {
   return total;
 }
 
+// 방치 24시간은 단기 탐색 12회분으로 환산하고,
+// 사용자가 선택한 하루 단기 탐색 횟수(1~5회)를 더합니다.
 function calculateDailyExp(input) {
   const dungeonOne = getDungeonReward(input.stage);
+  const shortExploreCount = Math.min(5, Math.max(1, Number(input.shortExploreCount) || 1));
   const detail = {
-    idleDaily:input.explore * 13,
+    idleDaily:input.explore * (12 + shortExploreCount),
     dungeonDaily:dungeonOne * 3,
     shopDaily:input.includeShopTicket ? dungeonOne : 0,
     mazeDaily:MAZE_WEEKLY[input.maze] / 7,
@@ -984,7 +1014,8 @@ function readLevelInput() {
     level,
     ownedBooks:readNonNegativeInteger("ownedBooks", "보유 경험치 북"),
     ownedTickets:readNonNegativeInteger("ownedTickets", "보유 경험치 던전 티켓(퍼플 티켓)"),
-    exploreReward:readNonNegativeInteger("exploreReward", "무료 보물 탐색 1회 경험치 북"),
+    exploreReward:readNonNegativeInteger("exploreReward", "단기 탐색 1회 경험치 북"),
+    shortExploreCount:Number($("levelShortExploreCount").value),
     ownedBoxes:readNonNegativeInteger("ownedBoxes", "보유 경험치 상자"),
     stage:Number($("levelDungeonStage").value),
     calculateRemainingPeriod:$("enableRemainingPeriod").checked,
@@ -1028,6 +1059,7 @@ function calculateRemainingExpTo300(currentLevel, totalAvailableExp) {
 function calculateLevelDailyExp(input) {
   return calculateDailyExp({
     explore:input.exploreReward,
+    shortExploreCount:input.shortExploreCount,
     stage:input.stage,
     maze:input.maze,
     includeShopTicket:input.includeShopTicket,
@@ -1170,6 +1202,51 @@ function toggleRemainingPeriodInputs() {
   setRemainingPeriodResultVisible(false);
 }
 
+
+// 모바일에서 label 안의 도움말을 눌러도 연결된 입력칸에 초점이 가지 않도록 합니다.
+function setupHelpTips() {
+  const tips = [...document.querySelectorAll(".help-tip")];
+
+  for (const tip of tips) {
+    tip.setAttribute("role", "button");
+    tip.setAttribute("aria-expanded", "false");
+
+    tip.addEventListener("pointerdown", event => {
+      event.preventDefault();
+      event.stopPropagation();
+    });
+
+    tip.addEventListener("click", event => {
+      event.preventDefault();
+      event.stopPropagation();
+      const willOpen = !tip.classList.contains("is-open");
+
+      for (const other of tips) {
+        other.classList.remove("is-open");
+        other.setAttribute("aria-expanded", "false");
+      }
+
+      if (willOpen) {
+        tip.classList.add("is-open");
+        tip.setAttribute("aria-expanded", "true");
+      }
+    });
+
+    tip.addEventListener("keydown", event => {
+      if (event.key !== "Enter" && event.key !== " ") return;
+      event.preventDefault();
+      tip.click();
+    });
+  }
+
+  document.addEventListener("click", () => {
+    for (const tip of tips) {
+      tip.classList.remove("is-open");
+      tip.setAttribute("aria-expanded", "false");
+    }
+  });
+}
+
 function activateTab(type) {
   const pass = type === "pass";
   $("passPanel").hidden = !pass;
@@ -1195,6 +1272,7 @@ fillStageSelect("levelDungeonStage", updateTicketHint);
 checkPassAvailability(false);
 checkLevelRange(false);
 toggleRemainingPeriodInputs();
+setupHelpTips();
 </script>
 </body>
 </html>
